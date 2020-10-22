@@ -1,0 +1,23 @@
+[
+  {
+    "operation": "shift",
+    "spec": {
+      "RESP_LOCATION": { "LOCATION": { "LON": "lon", "LAT": "lat" } },
+      "ID_ORIG_H": "ip_orig",
+      "TS": "ts",
+      "ID_RESP_H": "ip_resp",
+      "UID": "uid"
+    }
+  },
+  {
+    "operation": "shift",
+    "spec": {
+      "lon": "location.lon",
+      "lat": "location.lat",
+      "ts": "ts",
+      "ip_orig": "ip_orig",
+      "ip_resp": "ip_resp",
+      "uid": "uid"
+    }
+  }
+]
