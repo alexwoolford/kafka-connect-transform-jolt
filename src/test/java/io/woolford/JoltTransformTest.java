@@ -22,7 +22,7 @@ public class JoltTransformTest {
     private final JoltTransform.Value<SinkRecord> xformValue = new JoltTransform.Value<>();
 
 
-    private SinkRecord getSinkRecord() throws IOException {
+    private SinkRecord getSinkRecord1() throws IOException {
 
         String recordString = readFile("src/test/resources/record-1.json", StandardCharsets.US_ASCII);
         ObjectMapper mapper = new ObjectMapper();
@@ -42,17 +42,37 @@ public class JoltTransformTest {
 
     }
 
+    private SinkRecord getSinkRecord2() throws IOException {
+
+        String recordString = readFile("src/test/resources/record-2.json", StandardCharsets.US_ASCII);
+        ObjectMapper mapper = new ObjectMapper();
+
+        TypeReference<HashMap<String, Object>> typeRef = new TypeReference<HashMap<String, Object>>() {};
+        Map<String, Object> recordValue = mapper.readValue(recordString, typeRef);
+
+        return new SinkRecord(
+                "test",
+                0,
+                null,
+                null,
+                null,
+                recordValue,
+                0
+        );
+
+    }
+
 
     @Test
-    public void joltTransformTest() throws IOException {
+    public void joltTransformSpec1Test() throws IOException {
 
-        String joltSpec = readFile("src/test/resources/spec.json", StandardCharsets.US_ASCII);
+        String joltSpec = readFile("src/test/resources/spec-1.json", StandardCharsets.US_ASCII);
 
         xformValue.configure(new HashMap<String, Object>(){{
             put(JoltTransform.JOLT_SPEC_CONFIG, joltSpec);
         }});
 
-        SinkRecord record = getSinkRecord();
+        SinkRecord record = getSinkRecord1();
 
         SinkRecord transformedRecord = xformValue.apply(record);
 
@@ -63,6 +83,27 @@ public class JoltTransformTest {
 
     }
 
+
+    @Test
+    public void joltTransformSpec2Test() throws IOException {
+
+        String joltSpec = readFile("src/test/resources/spec-2.json", StandardCharsets.US_ASCII);
+
+        xformValue.configure(new HashMap<String, Object>(){{
+            put(JoltTransform.JOLT_SPEC_CONFIG, joltSpec);
+        }});
+
+        SinkRecord record = getSinkRecord2();
+
+        SinkRecord transformedRecord = xformValue.apply(record);
+
+        ObjectMapper mapper = new ObjectMapper();
+        String transformedRecordJson = mapper.writeValueAsString(transformedRecord.value());
+
+        Assert.assertEquals("{\"ts\":1609300742514,\"uid\":\"C5gXW32wa2ez0o7P0h\",\"orig\":{\"location\":{\"lat\":39.997,\"lon\":-105.0974},\"city\":\"Lafayette\",\"region\":\"CO\",\"country_code\":\"US\"},\"resp\":{\"location\":{\"lat\":40.7449,\"lon\":-75.2217},\"city\":\"Easton\",\"region\":\"PA\",\"country_code\":\"US\"}}", transformedRecordJson);
+
+    }
+
     static String readFile(String path, Charset encoding)
             throws IOException
     {
@@ -70,6 +111,5 @@ public class JoltTransformTest {
         return new String(encoded, encoding);
     }
 
-    String test = "[{\"operation\":\"shift\",\"spec\":{\"RESP_LOCATION\":{\"LOCATION\":{\"LON\":\"lon\",\"LAT\":\"lat\"}},\"ID_ORIG_H\":\"ip_orig\",\"TS\":\"ts\",\"ID_RESP_H\":\"ip_resp\",\"UID\":\"uid\"}},{\"operation\":\"shift\",\"spec\":{\"lon\":\"location.lon\",\"lat\":\"location.lat\",\"ts\":\"ts\",\"ip_orig\":\"ip_orig\",\"ip_resp\":\"ip_resp\",\"uid\":\"uid\"}}]";
-
+    String test = "[{\"operation\":\"shift\",\"spec\":{\"ts\":\"ts\",\"ip_orig_h\":\"ip_orig\",\"ip_resp_h\":\"ip_resp\",\"uid\":\"uid\",\"geo_orig_latitude\":\"orig.location.lat\",\"geo_orig_longitude\":\"orig.location.lon\",\"geo_orig_city\":\"orig.city\",\"geo_orig_region\":\"orig.region\",\"geo_orig_country_code\":\"orig.country_code\",\"geo_resp_latitude\":\"resp.location.lat\",\"geo_resp_longitude\":\"resp.location.lon\",\"geo_resp_city\":\"resp.city\",\"geo_resp_region\":\"resp.region\",\"geo_resp_country_code\":\"resp.country_code\"}}]";
 }

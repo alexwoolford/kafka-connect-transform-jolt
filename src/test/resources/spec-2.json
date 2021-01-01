@@ -1,0 +1,21 @@
+[
+  {
+    "operation": "shift",
+    "spec": {
+      "ts": "ts",
+      "ip_orig_h": "ip_orig",
+      "ip_resp_h": "ip_resp",
+      "uid": "uid",
+      "geo_orig_latitude": "orig.location.lat",
+      "geo_orig_longitude": "orig.location.lon",
+      "geo_orig_city": "orig.city",
+      "geo_orig_region": "orig.region",
+      "geo_orig_country_code": "orig.country_code",
+      "geo_resp_latitude": "resp.location.lat",
+      "geo_resp_longitude": "resp.location.lon",
+      "geo_resp_city": "resp.city",
+      "geo_resp_region": "resp.region",
+      "geo_resp_country_code": "resp.country_code"
+    }
+  }
+]
